@@ -17,5 +17,12 @@
         "psr-4": {
             "Rutatiina\\Expense\\": "src/"
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rutatiina\\Expense\\ExpenseServiceProvider"
+            ]
+        }
     }
 }
