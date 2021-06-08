@@ -46,9 +46,14 @@ class ExpenseItem extends Model
         }
     }
 
-    public function txn()
+    public function expense()
     {
-        return $this->belongsTo('Rutatiina\FinancialAccounting\Models\Txn', 'txn_id');
+        return $this->hasOne('Rutatiina\Expense\Models\Expense', 'id', 'expense_id');
+    }
+
+    public function taxes()
+    {
+        return $this->hasMany('Rutatiina\Expense\Models\ExpenseItemTax', 'expense_item_id', 'id');
     }
 
 }

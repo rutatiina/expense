@@ -27,6 +27,6 @@ class ExpenseServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->make('Rutatiina\Expense\Http\Controllers\DefaultController');
+        $this->app->make('Rutatiina\Expense\Http\Controllers\ExpenseController');
     }
 }
