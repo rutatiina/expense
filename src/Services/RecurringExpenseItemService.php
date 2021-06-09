@@ -1,11 +1,11 @@
 <?php
 
-namespace Rutatiina\Invoice\Services;
+namespace Rutatiina\Expense\Services;
 
 use Rutatiina\Invoice\Models\InvoiceRecurringItem;
 use Rutatiina\Invoice\Models\InvoiceRecurringItemTax;
 
-class InvoiceRecurringItemService
+class RecurringExpenseItemService
 {
     public static $errors = [];
 

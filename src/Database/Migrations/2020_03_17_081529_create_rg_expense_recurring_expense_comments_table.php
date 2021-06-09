@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRgExpenseRecurringPropertiesTable extends Migration
+class CreateRgExpenseRecurringExpenseCommentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateRgExpenseRecurringPropertiesTable extends Migration
      */
     public function up()
     {
-        Schema::connection('tenant')->create('rg_expense_recurring_properties', function (Blueprint $table) {
+        Schema::connection('tenant')->create('rg_expense_recurring_expense_comments', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->timestamps();
 
@@ -27,17 +27,7 @@ class CreateRgExpenseRecurringPropertiesTable extends Migration
             //>> table columns
             $table->unsignedBigInteger('project_id')->nullable();
             $table->unsignedBigInteger('expense_recurring_id');
-            $table->string('status', 20); //active | paused | de-active
-            $table->string('frequency', 50);
-            $table->date('start_date');
-            $table->date('end_date');
-            $table->string('day_of_month', 10);
-            $table->string('month', 10);
-            $table->string('day_of_week', 10);
-
-            $table->dateTime('last_run')->comment('date time of last run');
-            $table->dateTime('next_run')->comment('date time of next run');
-
+            $table->string('comment', 250);
         });
     }
 
@@ -48,6 +38,6 @@ class CreateRgExpenseRecurringPropertiesTable extends Migration
      */
     public function down()
     {
-        Schema::connection('tenant')->dropIfExists('rg_expense_recurring_properties');
+        Schema::connection('tenant')->dropIfExists('rg_expense_recurring_expense_comments');
     }
 }

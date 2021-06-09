@@ -1,6 +1,6 @@
 <?php
 
-namespace Rutatiina\Invoice\Services;
+namespace Rutatiina\Expense\Services;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Rutatiina\Invoice\Models\InvoiceRecurring;
 use Rutatiina\Tax\Models\Tax;
 
-class InvoiceRecurringService
+class RecurringExpenseService
 {
     public static $errors = [];
 

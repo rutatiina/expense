@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRgExpenseRecurringItemTaxesTable extends Migration
+class CreateRgExpenseRecurringExpenseItemTaxesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateRgExpenseRecurringItemTaxesTable extends Migration
      */
     public function up()
     {
-        Schema::connection('tenant')->create('rg_expense_recurring_item_taxes', function (Blueprint $table) {
+        Schema::connection('tenant')->create('rg_expense_recurring_expense_item_taxes', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->timestamps();
 
@@ -43,6 +43,6 @@ class CreateRgExpenseRecurringItemTaxesTable extends Migration
      */
     public function down()
     {
-        Schema::connection('tenant')->dropIfExists('rg_expense_recurring_item_taxes');
+        Schema::connection('tenant')->dropIfExists('rg_expense_recurring_expense_item_taxes');
     }
 }

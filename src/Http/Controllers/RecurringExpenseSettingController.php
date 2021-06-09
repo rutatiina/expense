@@ -11,7 +11,7 @@ use Rutatiina\FinancialAccounting\Traits\FinancialAccountingTrait;
 use Rutatiina\Item\Traits\ItemsVueSearchSelect;
 use Rutatiina\FinancialAccounting\Models\Account;
 
-class RecurringSettingController extends Controller
+class RecurringExpenseSettingController extends Controller
 {
     use FinancialAccountingTrait;
     use ItemsVueSearchSelect;

@@ -2,35 +2,29 @@
 
 namespace Rutatiina\Expense\Http\Controllers;
 
+use Rutatiina\Expense\Services\RecurringExpenseService;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Request as FacadesRequest;
-use Rutatiina\Expense\Models\Expense;
-use Rutatiina\Expense\Services\ExpenseService;
+use Rutatiina\Expense\Models\RecurringExpense;
 use Rutatiina\FinancialAccounting\Traits\FinancialAccountingTrait;
 use Rutatiina\Contact\Traits\ContactTrait;
-use Yajra\DataTables\Facades\DataTables;
-;
-use Rutatiina\Expense\Classes\Copy as TxnCopy;
-use Rutatiina\Expense\Classes\Number as TxnNumber;
-use Rutatiina\Expense\Traits\Item as TxnItem;
 
-class ExpenseController extends Controller
+class RecurringExpenseController extends Controller
 {
     use FinancialAccountingTrait;
     use ContactTrait;
-    use TxnItem;
 
     // >> get the item attributes template << !!important
 
     public function __construct()
     {
-        $this->middleware('permission:expenses.view');
-        $this->middleware('permission:expenses.create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:expenses.update', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:expenses.delete', ['only' => ['destroy']]);
+        $this->middleware('permission:recurring-expenses.view');
+        $this->middleware('permission:recurring-expenses.create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:recurring-expenses.update', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:recurring-expenses.delete', ['only' => ['destroy']]);
     }
 
     public function index(Request $request)
@@ -41,7 +35,7 @@ class ExpenseController extends Controller
             return view('l-limitless-bs4.layout_2-ltr-default.appVue');
         }
 
-        $query = Expense::query();
+        $query = RecurringExpense::query();
 
         if ($request->contact)
         {
@@ -71,9 +65,8 @@ class ExpenseController extends Controller
 
         $tenant = Auth::user()->tenant;
 
-        $txnAttributes = (new Expense())->rgGetAttributes();
+        $txnAttributes = (new RecurringExpense())->rgGetAttributes();
 
-        $txnAttributes['number'] = ExpenseService::nextNumber();
         $txnAttributes['status'] = 'approved';
         $txnAttributes['contact_id'] = '';
         $txnAttributes['contact'] = json_decode('{"currencies":[]}'); #required
@@ -81,26 +74,38 @@ class ExpenseController extends Controller
         $txnAttributes['base_currency'] = $tenant->base_currency;
         $txnAttributes['quote_currency'] = $tenant->base_currency;
         $txnAttributes['taxes'] = json_decode('{}');
+        $txnAttributes['isRecurring'] = true;
+        $txnAttributes['recurring'] = [
+            'status' => 'active',
+            'frequency' => 'monthly',
+            'date_range' => [], //used by vue
+            'start_date' => '',
+            'end_date' => '',
+            'day_of_month' => '*',
+            'month' => '*',
+            'day_of_week' => '*',
+        ];
         $txnAttributes['contact_notes'] = null;
         $txnAttributes['terms_and_conditions'] = null;
-        $txnAttributes['items'] = [
-            [
-                'selectedTaxes' => [], #required
-                'selectedItem' => json_decode('{}'), #required
-                'displayTotal' => 0,
-                'description' => '',
-                'amount' => 0,
-                'contact_id' => '',
-            ]
-        ];
+        $txnAttributes['items'] = [[
+            'selectedTaxes' => [], #required
+            'selectedItem' => json_decode('{}'), #required
+            'displayTotal' => 0,
+            'description' => '',
+            'rate' => 0,
+            'quantity' => 1,
+            'total' => 0,
+            'taxes' => [],
+            'contact_id' => '',
+        ]];
 
         unset($txnAttributes['debit_contact_id']); //!important
         unset($txnAttributes['credit_contact_id']); //!important
 
         $data = [
-            'pageTitle' => 'Record Expense', #required
-            'pageAction' => 'Record', #required
-            'txnUrlStore' => '/expenses', #required
+            'pageTitle' => 'Create Recurring Expense', #required
+            'pageAction' => 'Create', #required
+            'txnUrlStore' => '/recurring-expenses', #required
             'txnAttributes' => $txnAttributes, #required
         ];
 
@@ -110,21 +115,21 @@ class ExpenseController extends Controller
 
     public function store(Request $request)
     {
-        $storeService = ExpenseService::store($request);
+        $storeService = RecurringExpenseService::store($request);
 
         if ($storeService == false)
         {
             return [
                 'status' => false,
-                'messages' => ExpenseService::$errors
+                'messages' => RecurringExpenseService::$errors
             ];
         }
 
         return [
             'status' => true,
-            'messages' => ['Expense saved'],
+            'messages' => ['Recurring Expense saved'],
             'number' => 0,
-            'callback' => URL::route('expenses.show', [$storeService->id], false)
+            'callback' => URL::route('recurring-expenses.show', [$storeService->id], false)
         ];
 
     }
@@ -137,7 +142,7 @@ class ExpenseController extends Controller
             return view('l-limitless-bs4.layout_2-ltr-default.appVue');
         }
 
-        $txn = Expense::findOrFail($id);
+        $txn = RecurringExpense::findOrFail($id);
         $txn->load('contact', 'items.taxes');
         $txn->setAppends([
             'taxes',
@@ -150,18 +155,12 @@ class ExpenseController extends Controller
 
     public function edit($id)
     {
-        //load the vue version of the app
-        if (!FacadesRequest::wantsJson())
-        {
-            return view('l-limitless-bs4.layout_2-ltr-default.appVue');
-        }
-
-        $txnAttributes = ExpenseService::edit($id);
+        $txnAttributes = RecurringExpenseService::edit($id);
 
         $data = [
-            'pageTitle' => 'Edit expense', #required
+            'pageTitle' => 'Edit Recurring expense', #required
             'pageAction' => 'Edit', #required
-            'txnUrlStore' => '/expenses/' . $id, #required
+            'txnUrlStore' => '/recurring-expenses/' . $id, #required
             'txnAttributes' => $txnAttributes, #required
         ];
 
@@ -170,43 +169,40 @@ class ExpenseController extends Controller
 
     public function update(Request $request)
     {
-        //editing an expense is not currently allowed
-        //return redirect()->back();
-
-        $storeService = ExpenseService::update($request);
+        $storeService = RecurringExpenseService::update($request);
 
         if ($storeService == false)
         {
             return [
                 'status' => false,
-                'messages' => ExpenseService::$errors
+                'messages' => RecurringExpenseService::$errors
             ];
         }
 
         return [
             'status' => true,
-            'messages' => ['Expense updated'],
-            'callback' => URL::route('expenses.show', [$storeService->id], false)
+            'messages' => ['Recurring Expense updated'],
+            'callback' => route('recurring-expenses.show', $request->id)
         ];
     }
 
     public function destroy($id)
     {
-        $destroy = ExpenseService::destroy($id);
+        $destroy = RecurringExpenseService::destroy($id);
 
         if ($destroy)
         {
             return [
                 'status' => true,
-                'messages' => ['Expense deleted'],
-                'callback' => URL::route('expenses.index', [], false)
+                'messages' => ['Recurring expense deleted'],
+                'callback' => URL::route('recurring-expenses.index', [], false)
             ];
         }
         else
         {
             return [
                 'status' => false,
-                'messages' => ExpenseService::$errors
+                'messages' => RecurringExpenseService::$errors
             ];
         }
     }
@@ -215,19 +211,19 @@ class ExpenseController extends Controller
 
     public function approve($id)
     {
-        $approve = ExpenseService::approve($id);
+        $approve = RecurringExpenseService::approve($id);
 
         if ($approve == false)
         {
             return [
                 'status' => false,
-                'messages' => ExpenseService::$errors
+                'messages' => RecurringExpenseService::$errors
             ];
         }
 
         return [
             'status' => true,
-            'messages' => ['Expenses approved'],
+            'messages' => ['Recurring Expense Approved'],
         ];
 
     }
@@ -240,71 +236,15 @@ class ExpenseController extends Controller
             return view('l-limitless-bs4.layout_2-ltr-default.appVue');
         }
 
-        $txnAttributes = ExpenseService::copy($id);
+        $txnAttributes = RecurringExpenseService::copy($id);
 
         $data = [
-            'pageTitle' => 'Copy Expense', #required
+            'pageTitle' => 'Copy Recurring expense', #required
             'pageAction' => 'Copy', #required
-            'txnUrlStore' => '/expenses', #required
+            'txnUrlStore' => '/recurring-expenses', #required
             'txnAttributes' => $txnAttributes, #required
         ];
 
         return $data;
-    }
-
-    public function datatables(Request $request)
-    {
-
-        $txns = Transaction::setRoute('show', route('accounting.purchases.expenses.show', '_id_'))
-            ->setRoute('copy', route('accounting.purchases.expenses.copy', '_id_'))
-            ->setRoute('edit', route('accounting.purchases.expenses.edit', '_id_'))
-            ->setSortBy($request->sort_by)
-            ->paginate(false)
-            ->findByEntree($this->txnEntreeSlug);
-
-        return Datatables::of($txns)->make(true);
-    }
-
-    public function exportToExcel(Request $request)
-    {
-
-        $txns = collect([]);
-
-        $txns->push([
-            'DATE',
-            'EXPENSE ACCOUNT',
-            'REFERENCE',
-            'SUPPLIER / VENDOR',
-            'PAID THROUGH',
-            'CUSTOMER NAME',
-            'AMOUNT',
-            ' ', //Currency
-        ]);
-
-        foreach (array_reverse($request->ids) as $id)
-        {
-            $txn = Transaction::transaction($id);
-
-            $txns->push([
-                $txn->date,
-                $txn->debit_account->name,
-                $txn->reference,
-                $txn->contact_name,
-                $txn->credit_account->name,
-                '',
-                $txn->total,
-                $txn->base_currency,
-            ]);
-        }
-
-        $export = $txns->downloadExcel(
-            'maccounts-expenses-export-' . date('Y-m-d-H-m-s') . '.xlsx',
-            null,
-            false
-        );
-
-        //$books->load('author', 'publisher'); //of no use
-
-        return $export;
     }
 }

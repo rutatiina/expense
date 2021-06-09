@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Scopes\TenantIdScope;
 
-class ExpenseRecurringItemTax extends Model
+class RecurringExpenseItemTax extends Model
 {
     use LogsActivity;
 
@@ -18,7 +18,7 @@ class ExpenseRecurringItemTax extends Model
 
     protected $connection = 'tenant';
 
-    protected $table = 'rg_expense_recurring_item_taxes';
+    protected $table = 'rg_expense_recurring_expense_item_taxes';
 
     protected $primaryKey = 'id';
 

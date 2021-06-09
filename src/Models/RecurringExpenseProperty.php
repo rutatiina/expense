@@ -7,7 +7,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use App\Scopes\TenantIdScope;
 use Cron\CronExpression;
 
-class ExpenseRecurringProperty extends Model
+class RecurringExpenseProperty extends Model
 {
     use LogsActivity;
 
@@ -19,7 +19,7 @@ class ExpenseRecurringProperty extends Model
 
     protected $connection = 'tenant';
 
-    protected $table = 'rg_expense_recurring_properties';
+    protected $table = 'rg_expense_recurring_expense_properties';
 
     protected $primaryKey = 'id';
 

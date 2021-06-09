@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRgExpenseRecurringLedgersTable extends Migration
+class CreateRgExpenseRecurringExpensePropertiesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateRgExpenseRecurringLedgersTable extends Migration
      */
     public function up()
     {
-        Schema::connection('tenant')->create('rg_expense_recurring_ledgers', function (Blueprint $table) {
+        Schema::connection('tenant')->create('rg_expense_recurring_expense_properties', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->timestamps();
 
@@ -27,15 +27,17 @@ class CreateRgExpenseRecurringLedgersTable extends Migration
             //>> table columns
             $table->unsignedBigInteger('project_id')->nullable();
             $table->unsignedBigInteger('expense_recurring_id');
-            $table->date('date');
-            $table->date('external_date');
-            $table->unsignedBigInteger('financial_account_code');
-            $table->enum('effect', ['debit', 'credit']);
-            $table->unsignedDecimal('total', 20, 5);
-            $table->string('base_currency', 3);
-            $table->string('quote_currency', 3);
-            $table->unsignedDecimal('exchange_rate', 20,5);
-            $table->unsignedBigInteger('contact_id');
+            $table->string('status', 20); //active | paused | de-active
+            $table->string('frequency', 50);
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->string('day_of_month', 10);
+            $table->string('month', 10);
+            $table->string('day_of_week', 10);
+
+            $table->dateTime('last_run')->comment('date time of last run');
+            $table->dateTime('next_run')->comment('date time of next run');
+
         });
     }
 
@@ -46,6 +48,6 @@ class CreateRgExpenseRecurringLedgersTable extends Migration
      */
     public function down()
     {
-        Schema::connection('tenant')->dropIfExists('rg_expense_recurring_ledgers');
+        Schema::connection('tenant')->dropIfExists('rg_expense_recurring_expense_properties');
     }
 }

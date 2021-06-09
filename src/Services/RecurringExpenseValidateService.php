@@ -1,12 +1,12 @@
 <?php
 
-namespace Rutatiina\Invoice\Services;
+namespace Rutatiina\Expense\Services;
 
 use Illuminate\Support\Facades\Validator;
 use Rutatiina\Contact\Models\Contact;
 use Rutatiina\Invoice\Models\InvoiceRecurringSetting;
 
-class InvoiceRecurringValidateService
+class RecurringExpenseValidateService
 {
     public static $errors = [];
 

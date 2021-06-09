@@ -1,10 +1,10 @@
 <?php
 
-namespace Rutatiina\Invoice\Services;
+namespace Rutatiina\Expense\Services;
 
-use Rutatiina\Invoice\Models\InvoiceRecurringProperty;
+use Rutatiina\Expense\Models\RecurringExpenseProperty;
 
-class InvoiceRecurringPropertyService
+class RecurringExpensePropertyService
 {
     public static $errors = [];
 
@@ -15,7 +15,7 @@ class InvoiceRecurringPropertyService
 
     public static function store($data)
     {
-        $TxnRecurring = new InvoiceRecurringProperty;
+        $TxnRecurring = new RecurringExpenseProperty;
         $TxnRecurring->tenant_id = $data['tenant_id'];
         $TxnRecurring->invoice_recurring_id = $data['id'];
         $TxnRecurring->status = $data['recurring']['status'];
