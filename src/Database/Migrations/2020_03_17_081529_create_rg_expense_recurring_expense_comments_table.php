@@ -26,7 +26,7 @@ class CreateRgExpenseRecurringExpenseCommentsTable extends Migration
 
             //>> table columns
             $table->unsignedBigInteger('project_id')->nullable();
-            $table->unsignedBigInteger('expense_recurring_id');
+            $table->unsignedBigInteger('recurring_expense_id');
             $table->string('comment', 250);
         });
     }

@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Rutatiina\Expense\Models\ExpenseRecurringSetting;
+use Rutatiina\Expense\Models\RecurringExpenseSetting;
 use Rutatiina\FinancialAccounting\Traits\FinancialAccountingTrait;
 use Rutatiina\Item\Traits\ItemsVueSearchSelect;
 use Rutatiina\FinancialAccounting\Models\Account;
@@ -18,10 +18,10 @@ class RecurringExpenseSettingController extends Controller
 
     public function __construct()
     {
-		$this->middleware('permission:estimates.view');
-		$this->middleware('permission:estimates.create', ['only' => ['create','store']]);
-		$this->middleware('permission:estimates.update', ['only' => ['edit','update']]);
-		$this->middleware('permission:estimates.delete', ['only' => ['destroy']]);
+		//$this->middleware('permission:estimates.view');
+		//$this->middleware('permission:estimates.create', ['only' => ['create','store']]);
+		//$this->middleware('permission:estimates.update', ['only' => ['edit','update']]);
+		//$this->middleware('permission:estimates.delete', ['only' => ['destroy']]);
 	}
 
     public function index()
@@ -33,7 +33,7 @@ class RecurringExpenseSettingController extends Controller
 
         return [
             'financial_accounts' => Account::all(),
-            'settings' => ExpenseRecurringSetting::first()
+            'settings' => RecurringExpenseSetting::first()
         ];
     }
 
@@ -61,7 +61,7 @@ class RecurringExpenseSettingController extends Controller
         }
 
         //save data posted
-        $settings = ExpenseRecurringSetting::first();
+        $settings = RecurringExpenseSetting::first();
         $settings->document_name = $request->document_name;
         $settings->number_prefix = $request->number_prefix;
         $settings->number_postfix = $request->number_postfix;

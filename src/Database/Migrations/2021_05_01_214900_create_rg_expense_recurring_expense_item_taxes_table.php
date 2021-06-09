@@ -26,8 +26,8 @@ class CreateRgExpenseRecurringExpenseItemTaxesTable extends Migration
 
             //>> table columns
             $table->unsignedBigInteger('project_id')->nullable();
-            $table->unsignedBigInteger('expense_recurring_id');
-            $table->unsignedBigInteger('expense_recurring_item_id');
+            $table->unsignedBigInteger('recurring_expense_id');
+            $table->unsignedBigInteger('recurring_expense_item_id');
             $table->char('tax_code', 50);
             $table->unsignedDecimal('amount', 20,5);
             $table->unsignedDecimal('inclusive', 20,5);

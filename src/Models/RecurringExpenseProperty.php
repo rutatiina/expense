@@ -23,7 +23,7 @@ class RecurringExpenseProperty extends Model
 
     protected $primaryKey = 'id';
 
-    protected $appends = ['recur', 'next_run_date'];
+    protected $appends = ['recur', 'date_range', 'next_run_date'];
 
     /**
      * The "booting" method of the model.
@@ -89,6 +89,14 @@ class RecurringExpenseProperty extends Model
         }
 
         return true;
+    }
+
+    public function getDateRangeAttribute()
+    {
+        return [
+            $this->start_date,
+            $this->end_date
+        ];
     }
 
     public function tenant()

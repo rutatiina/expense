@@ -46,9 +46,14 @@ class RecurringExpenseItem extends Model
         }
     }
 
-    public function txn()
+    public function recurring_expense()
     {
-        return $this->belongsTo('Rutatiina\FinancialAccounting\Models\Txn', 'txn_id');
+        return $this->belongsTo('Rutatiina\Expense\Models\RecurringExpense', 'recurring_expense_id');
+    }
+
+    public function taxes()
+    {
+        return $this->hasMany('Rutatiina\Expense\Models\RecurringExpenseItemTax', 'recurring_Expense_item_id', 'id');
     }
 
 }

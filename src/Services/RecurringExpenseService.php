@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Rutatiina\Invoice\Models\InvoiceRecurring;
+use Rutatiina\Expense\Models\RecurringExpense;
 use Rutatiina\Tax\Models\Tax;
 
 class RecurringExpenseService
@@ -22,8 +22,8 @@ class RecurringExpenseService
     {
         $taxes = Tax::all()->keyBy('code');
 
-        $txn = InvoiceRecurring::findOrFail($id);
-        $txn->load('contact', 'items.taxes');
+        $txn = RecurringExpense::findOrFail($id);
+        $txn->load('contact', 'properties', 'items.taxes');
         $txn->setAppends(['taxes']);
 
         $attributes = $txn->toArray();
@@ -32,48 +32,47 @@ class RecurringExpenseService
 
         $attributes['_method'] = 'PATCH';
 
-        $attributes['contact_id'] = $attributes['debit_contact_id'];
         $attributes['contact']['currency'] = $attributes['contact']['currency_and_exchange_rate'];
         $attributes['contact']['currencies'] = $attributes['contact']['currencies_and_exchange_rates'];
 
         $attributes['taxes'] = json_decode('{}');
 
-        foreach ($attributes['items'] as $key => $item)
+        foreach ($attributes['items'] as &$item)
         {
             $selectedItem = [
-                'id' => $item['item_id'],
-                'name' => $item['name'],
+                'id' => 0,
                 'description' => $item['description'],
-                'rate' => $item['rate'],
+                'amount' => $item['amount'],
                 'tax_method' => 'inclusive',
                 'account_type' => null,
             ];
 
-            $attributes['items'][$key]['selectedItem'] = $selectedItem; #required
-            $attributes['items'][$key]['selectedTaxes'] = []; #required
-            $attributes['items'][$key]['displayTotal'] = 0; #required
+            $item['selectedItem'] = $selectedItem; #required
+            $item['selectedTaxes'] = []; #required
+            $item['displayTotal'] = 0; #required
 
             foreach ($item['taxes'] as $itemTax)
             {
-                $attributes['items'][$key]['selectedTaxes'][] = $taxes[$itemTax['tax_code']];
+                $item['selectedTaxes'][] = $taxes[$itemTax['tax_code']];
             }
 
-            $attributes['items'][$key]['rate'] = floatval($item['rate']);
-            $attributes['items'][$key]['quantity'] = floatval($item['quantity']);
-            $attributes['items'][$key]['total'] = floatval($item['total']);
-            $attributes['items'][$key]['displayTotal'] = $item['total']; #required
+            $item['amount'] = floatval($item['amount']);
+            $item['displayTotal'] = $item['amount']; #required
         };
+
+        $attributes['isRecurring'] = true;
+        $attributes['recurring'] = $attributes['properties'];
 
         return $attributes;
     }
 
     public static function store($requestInstance)
     {
-        $data = InvoiceRecurringValidateService::run($requestInstance);
+        $data = RecurringExpenseValidateService::run($requestInstance);
         //print_r($data); exit;
         if ($data === false)
         {
-            self::$errors = InvoiceRecurringValidateService::$errors;
+            self::$errors = RecurringExpenseValidateService::$errors;
             return false;
         }
 
@@ -82,19 +81,20 @@ class RecurringExpenseService
 
         try
         {
-            $Txn = new InvoiceRecurring;
+            $Txn = new RecurringExpense;
             $Txn->tenant_id = $data['tenant_id'];
             $Txn->created_by = Auth::id();
             $Txn->profile_name = $data['profile_name'];
+            $Txn->credit_financial_account_code = $data['credit_financial_account_code'];
             $Txn->contact_id = $data['contact_id'];
             $Txn->contact_name = $data['contact_name'];
             $Txn->contact_address = $data['contact_address'];
-            $Txn->reference = $data['reference'];
             $Txn->base_currency = $data['base_currency'];
             $Txn->quote_currency = $data['quote_currency'];
             $Txn->exchange_rate = $data['exchange_rate'];
             $Txn->taxable_amount = $data['taxable_amount'];
             $Txn->total = $data['total'];
+            $Txn->payment_mode = $data['payment_mode'];
             $Txn->branch_id = $data['branch_id'];
             $Txn->store_id = $data['store_id'];
             $Txn->start_date = $data['recurring']['start_date'];
@@ -110,9 +110,9 @@ class RecurringExpenseService
             //print_r($data['items']); exit;
 
             //Save the items >> $data['items']
-            InvoiceRecurringItemService::store($data);
+            RecurringExpenseItemService::store($data);
 
-            InvoiceRecurringPropertyService::store($data);
+            RecurringExpensePropertyService::store($data);
 
             DB::connection('tenant')->commit();
 
@@ -147,11 +147,11 @@ class RecurringExpenseService
 
     public static function update($requestInstance)
     {
-        $data = InvoiceRecurringValidateService::run($requestInstance);
+        $data = RecurringExpenseValidateService::run($requestInstance);
         //print_r($data); exit;
         if ($data === false)
         {
-            self::$errors = InvoiceRecurringValidateService::$errors;
+            self::$errors = RecurringExpenseValidateService::$errors;
             return false;
         }
 
@@ -160,7 +160,7 @@ class RecurringExpenseService
 
         try
         {
-            $Txn = InvoiceRecurring::with('items', 'ledgers')->findOrFail($data['id']);
+            $Txn = RecurringExpense::with('items', 'ledgers')->findOrFail($data['id']);
 
             if ($Txn->status == 'approved')
             {
@@ -177,15 +177,16 @@ class RecurringExpenseService
             $Txn->tenant_id = $data['tenant_id'];
             $Txn->created_by = Auth::id();
             $Txn->profile_name = $data['profile_name'];
+            $Txn->credit_financial_account_code = $data['credit_financial_account_code'];
             $Txn->contact_id = $data['contact_id'];
             $Txn->contact_name = $data['contact_name'];
             $Txn->contact_address = $data['contact_address'];
-            $Txn->reference = $data['reference'];
             $Txn->base_currency = $data['base_currency'];
             $Txn->quote_currency = $data['quote_currency'];
             $Txn->exchange_rate = $data['exchange_rate'];
             $Txn->taxable_amount = $data['taxable_amount'];
             $Txn->total = $data['total'];
+            $Txn->payment_mode = $data['payment_mode'];
             $Txn->branch_id = $data['branch_id'];
             $Txn->store_id = $data['store_id'];
             $Txn->start_date = $data['recurring']['start_date'];
@@ -201,9 +202,9 @@ class RecurringExpenseService
             //print_r($data['items']); exit;
 
             //Save the items >> $data['items']
-            InvoiceRecurringItemService::store($data);
+            RecurringExpenseItemService::store($data);
 
-            InvoiceRecurringPropertyService::store($data);
+            RecurringExpensePropertyService::store($data);
 
             DB::connection('tenant')->commit();
 
@@ -242,7 +243,7 @@ class RecurringExpenseService
 
         try
         {
-            $Txn = InvoiceRecurring::findOrFail($id);
+            $Txn = RecurringExpense::findOrFail($id);
 
             if ($Txn->status == 'approved')
             {
@@ -291,7 +292,7 @@ class RecurringExpenseService
     {
         $taxes = Tax::all()->keyBy('code');
 
-        $txn = InvoiceRecurring::findOrFail($id);
+        $txn = RecurringExpense::findOrFail($id);
         $txn->load('contact', 'items.taxes');
         $txn->setAppends(['taxes']);
 
@@ -339,7 +340,7 @@ class RecurringExpenseService
 
     public static function approve($id)
     {
-        $Txn = InvoiceRecurring::with(['ledgers'])->findOrFail($id);
+        $Txn = RecurringExpense::with(['ledgers'])->findOrFail($id);
 
         if (strtolower($Txn->status) != 'draft')
         {

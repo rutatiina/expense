@@ -22,6 +22,8 @@ class RecurringExpenseValidateService
         $customMessages = [
             //'total.in' => "Item total is invalid:\nItem total = item rate x item quantity",
 
+            'credit_financial_account_code' => "Tax account to credit is required",
+            'items.*.debit_financial_account_code' => "Tax account to debit is required",
             'items.*.taxes.*.code.required' => "Tax code is required",
             'items.*.taxes.*.total.required' => "Tax total is required",
             //'items.*.taxes.*.exclusive.required' => "Tax exclusive amount is required",
@@ -30,21 +32,19 @@ class RecurringExpenseValidateService
         $rules = [
             'profile_name' => 'required|string|max:250',
             'contact_id' => 'required|numeric',
-            'date' => 'required|date',
+            'credit_financial_account_code' => 'required|numeric',
             'base_currency' => 'required',
-            'salesperson_contact_id' => 'numeric|nullable',
-            'memo' => 'string|nullable',
+            'payment_mode' => 'required',
+            'contact_notes' => 'string|nullable',
 
             'items' => 'required|array',
-            'items.*.name' => 'required_without:type_id',
-            'items.*.rate' => 'required|numeric',
-            'items.*.quantity' => 'required|numeric|gt:0',
-            //'items.*.total' => 'required|numeric|in:' . $itemTotal, //todo custom validator to check this
-            'items.*.units' => 'numeric|nullable',
+            'items.*.debit_financial_account_code' => 'required|numeric',
+            'items.*.description' => 'required',
+            'items.*.amount' => 'required|numeric',
             'items.*.taxes' => 'array|nullable',
 
             'items.*.taxes.*.code' => 'required',
-            'items.*.taxes.*.total' => 'required|numeric',
+            'items.*.taxes.*.amount' => 'required|numeric',
             //'items.*.taxes.*.exclusive' => 'required|numeric',
 
             'recurring.frequency' => 'required|string',
@@ -73,6 +73,7 @@ class RecurringExpenseValidateService
         $data['created_by'] = $user->name;
         $data['app'] = 'web';
         $data['profile_name'] = $requestInstance->input('profile_name');
+        $data['credit_financial_account_code'] = $requestInstance->credit_financial_account_code;
         $data['contact_id'] = $requestInstance->contact_id;
         $data['contact_name'] = $contact->name;
         $data['contact_address'] = trim($contact->shipping_address_street1 . ' ' . $contact->shipping_address_street2);
@@ -80,13 +81,12 @@ class RecurringExpenseValidateService
         $data['base_currency'] =  $requestInstance->input('base_currency');
         $data['quote_currency'] =  $requestInstance->input('quote_currency', $data['base_currency']);
         $data['exchange_rate'] = $requestInstance->input('exchange_rate', 1);
-        $data['salesperson_contact_id'] = $requestInstance->input('salesperson_contact_id', null);
         $data['branch_id'] = $requestInstance->input('branch_id', null);
         $data['store_id'] = $requestInstance->input('store_id', null);
-        $data['due_date'] = $requestInstance->input('due_date', null);
         $data['terms_and_conditions'] = $requestInstance->input('terms_and_conditions', null);
         $data['contact_notes'] = $requestInstance->input('contact_notes', null);
         $data['status'] = $requestInstance->input('status', null);
+        $data['payment_mode'] = $requestInstance->input('payment_mode', null);
 
 
         //set the transaction total to zero
@@ -99,9 +99,9 @@ class RecurringExpenseValidateService
         {
             $itemTaxes = $requestInstance->input('items.'.$key.'.taxes', []);
 
-            $txnTotal           += ($item['rate']*$item['quantity']);
-            $taxableAmount      += ($item['rate']*$item['quantity']);
-            $itemTaxableAmount   = ($item['rate']*$item['quantity']); //calculate the item taxable amount
+            $txnTotal           += ($item['amount']);
+            $taxableAmount      += ($item['amount']);
+            $itemTaxableAmount   = ($item['amount']); //calculate the item taxable amount
 
             foreach ($itemTaxes as $itemTax)
             {
@@ -114,16 +114,10 @@ class RecurringExpenseValidateService
                 'tenant_id' => $data['tenant_id'],
                 'created_by' => $data['created_by'],
                 'contact_id' => $item['contact_id'],
-                'item_id' => $item['item_id'],
-                'name' => $item['name'],
+                'debit_financial_account_code' => $item['debit_financial_account_code'],
                 'description' => $item['description'],
-                'quantity' => $item['quantity'],
-                'rate' => $item['rate'],
-                'total' => $item['total'],
+                'amount' => $txnTotal,
                 'taxable_amount' => $itemTaxableAmount,
-                'units' => $requestInstance->input('items.'.$key.'.units', null),
-                'batch' => $requestInstance->input('items.'.$key.'.batch', null),
-                'expiry' => $requestInstance->input('items.'.$key.'.expiry', null),
                 'taxes' => $itemTaxes,
             ];
         }

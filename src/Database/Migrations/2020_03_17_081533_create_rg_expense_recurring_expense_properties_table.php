@@ -26,7 +26,7 @@ class CreateRgExpenseRecurringExpensePropertiesTable extends Migration
 
             //>> table columns
             $table->unsignedBigInteger('project_id')->nullable();
-            $table->unsignedBigInteger('expense_recurring_id');
+            $table->unsignedBigInteger('recurring_expense_id');
             $table->string('status', 20); //active | paused | de-active
             $table->string('frequency', 50);
             $table->date('start_date');

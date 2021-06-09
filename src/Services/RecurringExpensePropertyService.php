@@ -17,7 +17,7 @@ class RecurringExpensePropertyService
     {
         $TxnRecurring = new RecurringExpenseProperty;
         $TxnRecurring->tenant_id = $data['tenant_id'];
-        $TxnRecurring->invoice_recurring_id = $data['id'];
+        $TxnRecurring->recurring_expense_id = $data['id'];
         $TxnRecurring->status = $data['recurring']['status'];
         $TxnRecurring->frequency = $data['recurring']['frequency'];
         //$TxnRecurring->measurement = $data['recurring']['frequency']; //of no use

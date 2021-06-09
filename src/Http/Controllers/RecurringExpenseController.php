@@ -155,6 +155,12 @@ class RecurringExpenseController extends Controller
 
     public function edit($id)
     {
+        //load the vue version of the app
+        if (!FacadesRequest::wantsJson())
+        {
+            return view('l-limitless-bs4.layout_2-ltr-default.appVue');
+        }
+
         $txnAttributes = RecurringExpenseService::edit($id);
 
         $data = [
