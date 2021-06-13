@@ -20,7 +20,9 @@ class RecurringExpenseValidateService
 
         //validate the data
         $customMessages = [
-            //'total.in' => "Item total is invalid:\nItem total = item rate x item quantity",
+            'con_day_of_month.required_if' => "The day of month to recurr is required",
+            'con_month.required_if' => "The month to recurr is required",
+            'con_day_of_week.required_if' => "The day of week to recurr is required",
 
             'credit_financial_account_code' => "Tax account to credit is required",
             'items.*.debit_financial_account_code' => "Tax account to debit is required",
@@ -36,6 +38,13 @@ class RecurringExpenseValidateService
             'base_currency' => 'required',
             'payment_mode' => 'required',
             'contact_notes' => 'string|nullable',
+
+            'frequency' => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            'con_day_of_month' => 'required_if:frequency,custom|string',
+            'con_month' => 'required_if:frequency,custom|string',
+            'con_day_of_week' => 'required_if:frequency,custom|string',
 
             'items' => 'required|array',
             'items.*.debit_financial_account_code' => 'required|numeric',
@@ -77,7 +86,6 @@ class RecurringExpenseValidateService
         $data['contact_id'] = $requestInstance->contact_id;
         $data['contact_name'] = $contact->name;
         $data['contact_address'] = trim($contact->shipping_address_street1 . ' ' . $contact->shipping_address_street2);
-        $data['reference'] = $requestInstance->input('reference', null);
         $data['base_currency'] =  $requestInstance->input('base_currency');
         $data['quote_currency'] =  $requestInstance->input('quote_currency', $data['base_currency']);
         $data['exchange_rate'] = $requestInstance->input('exchange_rate', 1);
@@ -85,8 +93,15 @@ class RecurringExpenseValidateService
         $data['store_id'] = $requestInstance->input('store_id', null);
         $data['terms_and_conditions'] = $requestInstance->input('terms_and_conditions', null);
         $data['contact_notes'] = $requestInstance->input('contact_notes', null);
-        $data['status'] = $requestInstance->input('status', null);
         $data['payment_mode'] = $requestInstance->input('payment_mode', null);
+
+        $data['status'] = $requestInstance->input('status', null);
+        $data['frequency'] = $requestInstance->input('frequency', null);
+        $data['start_date'] = $requestInstance->input('start_date', null);
+        $data['end_date'] = $requestInstance->input('end_date', null);
+        $data['cron_day_of_month'] = $requestInstance->input('cron_day_of_month', null);
+        $data['cron_month'] = $requestInstance->input('cron_month', null);
+        $data['cron_day_of_week'] = $requestInstance->input('cron_day_of_week', null);
 
 
         //set the transaction total to zero
