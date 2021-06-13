@@ -139,6 +139,16 @@ class RecurringExpense extends Model
         return $this->hasMany('Rutatiina\Expense\Models\RecurringExpenseItemTax', 'recurring_expense_id', 'id');
     }
 
+    public function debit_financial_account()
+    {
+        return $this->hasOne('Rutatiina\FinancialAccounting\Models\Account', 'code', 'debit_financial_account_code');
+    }
+
+    public function credit_financial_account()
+    {
+        return $this->hasOne('Rutatiina\FinancialAccounting\Models\Account', 'code', 'credit_financial_account_code');
+    }
+
     public function getTaxesAttribute()
     {
         $grouped = [];

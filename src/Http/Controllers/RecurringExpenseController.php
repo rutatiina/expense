@@ -41,14 +41,13 @@ class RecurringExpenseController extends Controller
         {
             $query->where(function ($q) use ($request)
             {
-                $q->where('debit_contact_id', $request->contact);
-                $q->orWhere('credit_contact_id', $request->contact);
+                $q->where('contact_id', $request->contact);
             });
         }
 
         $txns = $query->latest()->paginate($request->input('per_page', 20));
 
-        $txns->load('debit_account', 'credit_account');
+        $txns->load('debit_financial_account');
 
         return [
             'tableData' => $txns
@@ -70,21 +69,9 @@ class RecurringExpenseController extends Controller
         $txnAttributes['status'] = 'approved';
         $txnAttributes['contact_id'] = '';
         $txnAttributes['contact'] = json_decode('{"currencies":[]}'); #required
-        $txnAttributes['date'] = date('Y-m-d');
         $txnAttributes['base_currency'] = $tenant->base_currency;
         $txnAttributes['quote_currency'] = $tenant->base_currency;
         $txnAttributes['taxes'] = json_decode('{}');
-        $txnAttributes['isRecurring'] = true;
-        $txnAttributes['recurring'] = [
-            'status' => 'active',
-            'frequency' => 'monthly',
-            'date_range' => [], //used by vue
-            'start_date' => '',
-            'end_date' => '',
-            'day_of_month' => '*',
-            'month' => '*',
-            'day_of_week' => '*',
-        ];
         $txnAttributes['contact_notes'] = null;
         $txnAttributes['terms_and_conditions'] = null;
         $txnAttributes['items'] = [[
@@ -98,9 +85,6 @@ class RecurringExpenseController extends Controller
             'taxes' => [],
             'contact_id' => '',
         ]];
-
-        unset($txnAttributes['debit_contact_id']); //!important
-        unset($txnAttributes['credit_contact_id']); //!important
 
         $data = [
             'pageTitle' => 'Create Recurring Expense', #required

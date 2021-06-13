@@ -118,8 +118,6 @@ class RecurringExpenseService
             //Save the items >> $data['items']
             RecurringExpenseItemService::store($data);
 
-            RecurringExpensePropertyService::store($data);
-
             DB::connection('tenant')->commit();
 
             return $Txn;
@@ -175,7 +173,6 @@ class RecurringExpenseService
             }
 
             //Delete affected relations
-            $Txn->properties()->delete();
             $Txn->items()->delete();
             $Txn->item_taxes()->delete();
             $Txn->comments()->delete();
@@ -214,8 +211,6 @@ class RecurringExpenseService
 
             //Save the items >> $data['items']
             RecurringExpenseItemService::store($data);
-
-            RecurringExpensePropertyService::store($data);
 
             DB::connection('tenant')->commit();
 
@@ -263,7 +258,6 @@ class RecurringExpenseService
             }
 
             //Delete affected relations
-            $Txn->properties()->delete();
             $Txn->items()->delete();
             $Txn->item_taxes()->delete();
             $Txn->comments()->delete();

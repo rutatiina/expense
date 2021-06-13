@@ -53,15 +53,7 @@ class RecurringExpenseValidateService
             'items.*.taxes' => 'array|nullable',
 
             'items.*.taxes.*.code' => 'required',
-            'items.*.taxes.*.amount' => 'required|numeric',
-            //'items.*.taxes.*.exclusive' => 'required|numeric',
-
-            'recurring.frequency' => 'required|string',
-            'recurring.start_date' => 'required|date',
-            'recurring.end_date' => 'required|date',
-            'recurring.day_of_month' => 'required|string',
-            'recurring.month' => 'required|string',
-            'recurring.day_of_week' => 'required|string',
+            'items.*.taxes.*.amount' => 'required|numeric'
         ];
 
         $validator = Validator::make($requestInstance->all(), $rules, $customMessages);
