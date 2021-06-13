@@ -28,7 +28,6 @@ class CreateRgExpenseRecurringExpenseItemsTable extends Migration
             $table->unsignedBigInteger('project_id')->nullable();
             $table->unsignedBigInteger('recurring_expense_id');
             $table->unsignedBigInteger('contact_id')->nullable();
-            $table->unsignedBigInteger('debit_financial_account_code')->nullable();
             $table->string('description', 250)->nullable();
             $table->unsignedDecimal('amount', 20,5);
 

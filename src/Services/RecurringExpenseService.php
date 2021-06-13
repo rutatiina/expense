@@ -85,6 +85,7 @@ class RecurringExpenseService
             $Txn->tenant_id = $data['tenant_id'];
             $Txn->created_by = Auth::id();
             $Txn->profile_name = $data['profile_name'];
+            $Txn->debit_financial_account_code = $data['debit_financial_account_code'];
             $Txn->credit_financial_account_code = $data['credit_financial_account_code'];
             $Txn->contact_id = $data['contact_id'];
             $Txn->contact_name = $data['contact_name'];
@@ -180,6 +181,7 @@ class RecurringExpenseService
             $Txn->tenant_id = $data['tenant_id'];
             $Txn->created_by = Auth::id();
             $Txn->profile_name = $data['profile_name'];
+            $Txn->debit_financial_account_code = $data['debit_financial_account_code'];
             $Txn->credit_financial_account_code = $data['credit_financial_account_code'];
             $Txn->contact_id = $data['contact_id'];
             $Txn->contact_name = $data['contact_name'];

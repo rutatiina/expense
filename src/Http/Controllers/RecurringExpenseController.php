@@ -48,6 +48,7 @@ class RecurringExpenseController extends Controller
         $txns = $query->latest()->paginate($request->input('per_page', 20));
 
         $txns->load('debit_financial_account');
+        $txns->load('credit_financial_account');
 
         return [
             'tableData' => $txns

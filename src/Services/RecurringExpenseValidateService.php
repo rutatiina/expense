@@ -47,7 +47,6 @@ class RecurringExpenseValidateService
             'con_day_of_week' => 'required_if:frequency,custom|string',
 
             'items' => 'required|array',
-            'items.*.debit_financial_account_code' => 'required|numeric',
             'items.*.description' => 'required',
             'items.*.amount' => 'required|numeric',
             'items.*.taxes' => 'array|nullable',
@@ -74,6 +73,7 @@ class RecurringExpenseValidateService
         $data['created_by'] = $user->name;
         $data['app'] = 'web';
         $data['profile_name'] = $requestInstance->input('profile_name');
+        $data['debit_financial_account_code'] = $requestInstance->debit_financial_account_code;
         $data['credit_financial_account_code'] = $requestInstance->credit_financial_account_code;
         $data['contact_id'] = $requestInstance->contact_id;
         $data['contact_name'] = $contact->name;
@@ -121,7 +121,6 @@ class RecurringExpenseValidateService
                 'tenant_id' => $data['tenant_id'],
                 'created_by' => $data['created_by'],
                 'contact_id' => $item['contact_id'],
-                'debit_financial_account_code' => $item['debit_financial_account_code'],
                 'description' => $item['description'],
                 'amount' => $txnTotal,
                 'taxable_amount' => $itemTaxableAmount,
