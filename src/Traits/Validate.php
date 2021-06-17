@@ -70,8 +70,6 @@ trait Validate
         $data['exchange_rate'] = $this->insertDataDefault('exchange_rate', 1);
 
         $data['contact_id'] = $this->insertDataDefault('contact_id', null);
-        $data['debit_contact_id'] = $this->insertDataDefault('debit_contact_id', $data['contact_id']);
-        $data['credit_contact_id'] = $this->insertDataDefault('credit_contact_id', $data['contact_id']);
         $data['contact_name'] = $this->insertDataDefault('contact_name', null);
         $data['contact_address'] = $this->insertDataDefault('contact_address', null);
 
@@ -277,8 +275,7 @@ trait Validate
         $this->txn['payment_terms'] = $data['payment_terms'];
         $this->txn['status'] = $data['status'];
 
-        $this->txn['debit_contact_id'] = $data['debit_contact_id'];
-        $this->txn['credit_contact_id'] = $data['credit_contact_id'];
+        $this->txn['contact_id'] = $data['contact_id'];
         // << Generate the transaction variables
 
         $this->txn['items'] = $items;
@@ -295,13 +292,13 @@ trait Validate
                 'financial_account_code' => $this->txn['debit_financial_account_code'],
                 'effect' => 'debit',
                 'total' => $taxableAmount, //DR the expense account with the table
-                'contact_id' => $this->txn['debit_contact_id']
+                'contact_id' => $this->txn['contact_id']
             ],
             'credit' => [
                 'financial_account_code' => $this->txn['credit_financial_account_code'],
                 'effect' => 'credit',
                 'total' => $this->txn['total'], //CR the paying account with the full amount of the expense
-                'contact_id' => $this->txn['credit_contact_id']
+                'contact_id' => $this->txn['contact_id']
             ]
         ];
 
@@ -314,7 +311,7 @@ trait Validate
                 'financial_account_code' => $taxModel->on_bill_financial_account_code,
                 'effect' => $taxModel->on_bill_effect,
                 'total' => $tax['total'],
-                'contact_id' => $this->txn['debit_contact_id']
+                'contact_id' => $this->txn['contact_id']
             ];
         }
 
