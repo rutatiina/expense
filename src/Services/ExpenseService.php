@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Rutatiina\Expense\Models\Expense;
 use Rutatiina\FinancialAccounting\Services\AccountBalanceUpdateService;
 use Rutatiina\FinancialAccounting\Services\ContactBalanceUpdateService;
-use Rutatiina\Expense\Models\Setting;
+use Rutatiina\Expense\Models\ExpenseSetting;
 use Rutatiina\Tax\Models\Tax;
 
 class ExpenseService
@@ -24,7 +24,7 @@ class ExpenseService
     public static function nextNumber()
     {
         $count = Expense::count();
-        $settings = Setting::first();
+        $settings = ExpenseSetting::first();
 
         return $settings->number_prefix . (str_pad(($count + 1), $settings->minimum_number_length, "0", STR_PAD_LEFT)) . $settings->number_postfix;
     }

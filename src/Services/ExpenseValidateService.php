@@ -4,7 +4,7 @@ namespace Rutatiina\Expense\Services;
 
 use Illuminate\Support\Facades\Validator;
 use Rutatiina\Contact\Models\Contact;
-use Rutatiina\Expense\Models\Setting;
+use Rutatiina\Expense\Models\ExpenseSetting;
 
 class ExpenseValidateService
 {
@@ -57,7 +57,7 @@ class ExpenseValidateService
 
         // << data validation <<------------------------------------------------------------
 
-        $settings = Setting::has('financial_account_to_debit')
+        $settings = ExpenseSetting::has('financial_account_to_debit')
             ->has('financial_account_to_credit')
             ->with(['financial_account_to_debit', 'financial_account_to_credit'])
             ->firstOrFail();

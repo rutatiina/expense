@@ -12,7 +12,7 @@ Route::group(['middleware' => ['web', 'auth', 'tenant', 'service.accounting']], 
 
     });
 
-    Route::resource('expenses/settings', 'Rutatiina\Expense\Http\Controllers\SettingsController');
+    Route::resource('expenses/settings', 'Rutatiina\Expense\Http\Controllers\ExpenseSettingsController');
     Route::resource('expenses', 'Rutatiina\Expense\Http\Controllers\ExpenseController');
 
 });

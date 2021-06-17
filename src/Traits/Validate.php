@@ -5,7 +5,7 @@ namespace Rutatiina\Expense\Traits;
 use Illuminate\Support\Facades\Validator;
 use Rutatiina\Contact\Models\Contact;
 use Rutatiina\Expense\Models\Expense;
-use Rutatiina\Expense\Models\Setting;
+use Rutatiina\Expense\Models\ExpenseSetting;
 use Rutatiina\FinancialAccounting\Models\Account;
 use Rutatiina\Tax\Models\Tax;
 
@@ -174,7 +174,7 @@ trait Validate
 
         // << data validation <<------------------------------------------------------------
 
-        $this->settings = Setting::with(['financial_account_to_debit', 'financial_account_to_credit'])->first();
+        $this->settings = ExpenseSetting::with(['financial_account_to_debit', 'financial_account_to_credit'])->first();
 
         if (!$this->settings->financial_account_to_debit && !$this->settings->financial_account_to_credit)
         {
