@@ -179,7 +179,7 @@ class ExpenseService
         {
             $Txn = Expense::with('items', 'ledgers')->findOrFail($data['id']);
 
-            if ($Txn->status == 'Approved')
+            if ($Txn->status == 'approved')
             {
                 self::$errors[] = 'Approved Transaction cannot be not be edited';
                 return false;
@@ -192,10 +192,10 @@ class ExpenseService
             $Txn->comments()->delete();
 
             //reverse the account balances
-            AccountBalanceUpdateService::doubleEntry($Txn->ledgers->toArray(), true);
+            AccountBalanceUpdateService::doubleEntry($Txn->toArray(), true);
 
             //reverse the contact balances
-            ContactBalanceUpdateService::doubleEntry($Txn->ledgers->toArray(), true);
+            ContactBalanceUpdateService::doubleEntry($Txn->toArray(), true);
 
             $Txn->tenant_id = $data['tenant_id'];
             $Txn->created_by = Auth::id();
@@ -272,9 +272,9 @@ class ExpenseService
 
         try
         {
-            $Txn = Expense::findOrFail($id);
+            $Txn = Expense::with('items', 'ledgers')->findOrFail($id);
 
-            if ($Txn->status == 'Approved')
+            if ($Txn->status == 'approved')
             {
                 self::$errors[] = 'Approved Transaction cannot be not be deleted';
                 return false;
@@ -287,10 +287,10 @@ class ExpenseService
             $Txn->comments()->delete();
 
             //reverse the account balances
-            AccountBalanceUpdateService::doubleEntry($Txn->ledgers, true);
+            AccountBalanceUpdateService::doubleEntry($Txn, true);
 
             //reverse the contact balances
-            ContactBalanceUpdateService::doubleEntry($Txn->ledgers, true);
+            ContactBalanceUpdateService::doubleEntry($Txn, true);
 
             $Txn->delete();
 
