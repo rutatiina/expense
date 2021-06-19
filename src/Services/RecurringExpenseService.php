@@ -165,7 +165,7 @@ class RecurringExpenseService
 
         try
         {
-            $Txn = RecurringExpense::with('items', 'ledgers')->findOrFail($data['id']);
+            $Txn = RecurringExpense::with('items')->findOrFail($data['id']);
 
             if ($Txn->status == 'approved')
             {
@@ -340,15 +340,13 @@ class RecurringExpenseService
 
     public static function approve($id)
     {
-        $Txn = RecurringExpense::with(['ledgers'])->findOrFail($id);
+        $Txn = RecurringExpense::findOrFail($id);
 
         if (strtolower($Txn->status) != 'draft')
         {
             self::$errors[] = $Txn->status . ' transaction cannot be approved';
             return false;
         }
-
-        $data = $Txn->toArray();
 
         //start database transaction
         DB::connection('tenant')->beginTransaction();
