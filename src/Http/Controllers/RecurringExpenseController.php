@@ -67,7 +67,7 @@ class RecurringExpenseController extends Controller
 
         $txnAttributes = (new RecurringExpense())->rgGetAttributes();
 
-        $txnAttributes['status'] = 'approved';
+        $txnAttributes['status'] = 'active';
         $txnAttributes['contact_id'] = '';
         $txnAttributes['contact'] = json_decode('{"currencies":[]}'); #required
         $txnAttributes['base_currency'] = $tenant->base_currency;
@@ -202,7 +202,7 @@ class RecurringExpenseController extends Controller
 
     public function approve($id)
     {
-        $approve = RecurringExpenseService::approve($id);
+        $approve = RecurringExpenseService::activate($id);
 
         if ($approve == false)
         {
@@ -214,7 +214,7 @@ class RecurringExpenseController extends Controller
 
         return [
             'status' => true,
-            'messages' => ['Recurring Expense Approved'],
+            'messages' => ['Recurring Expense activated'],
         ];
 
     }
