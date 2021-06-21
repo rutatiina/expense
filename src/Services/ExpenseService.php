@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Rutatiina\Expense\Models\Expense;
+use Rutatiina\Expense\Models\ExpenseLedger;
 use Rutatiina\FinancialAccounting\Services\AccountBalanceUpdateService;
 use Rutatiina\FinancialAccounting\Services\ContactBalanceUpdateService;
 use Rutatiina\Expense\Models\ExpenseSetting;
@@ -34,7 +35,7 @@ class ExpenseService
         $taxes = Tax::all()->keyBy('code');
 
         $txn = Expense::findOrFail($id);
-        $txn->load('contact', 'items.taxes', 'items.invoice');
+        $txn->load('contact', 'items.taxes');
         $txn->setAppends(['taxes']);
 
         $attributes = $txn->toArray();
@@ -126,10 +127,12 @@ class ExpenseService
             ExpenseItemService::store($data);
 
             //Save the ledgers >> $data['ledgers']; and update the balances
-            //NOTE >> no need to update ledgers since this is not an accounting entry
+            $Txn->ledgers()->createMany($data['ledgers']);
 
-            //check status and update financial account and contact balances accordingly
-            ExpenseApprovalService::run($data);
+            //$Txn->refresh(); //make the ledgers relationship infor available
+
+            //update financial account and contact balances accordingly
+            ExpenseApprovalService::run($Txn);
 
             DB::connection('tenant')->commit();
 
@@ -191,53 +194,20 @@ class ExpenseService
             $Txn->item_taxes()->delete();
             $Txn->comments()->delete();
 
+
             //reverse the account balances
             AccountBalanceUpdateService::doubleEntry($Txn->toArray(), true);
 
             //reverse the contact balances
             ContactBalanceUpdateService::doubleEntry($Txn->toArray(), true);
 
-            $Txn->tenant_id = $data['tenant_id'];
-            $Txn->created_by = Auth::id();
-            $Txn->document_name = $data['document_name'];
-            $Txn->number = $data['number'];
-            $Txn->date = $data['date'];
-            $Txn->debit_financial_account_code = $data['debit_financial_account_code'];
-            $Txn->credit_financial_account_code = $data['credit_financial_account_code'];
-            $Txn->contact_id = $data['contact_id'];
-            $Txn->contact_name = $data['contact_name'];
-            $Txn->contact_address = $data['contact_address'];
-            $Txn->reference = $data['reference'];
-            $Txn->base_currency = $data['base_currency'];
-            $Txn->quote_currency = $data['quote_currency'];
-            $Txn->exchange_rate = $data['exchange_rate'];
-            $Txn->taxable_amount = $data['taxable_amount'];
-            $Txn->total = $data['total'];
-            $Txn->payment_mode = $data['payment_mode'];
-            $Txn->branch_id = $data['branch_id'];
-            $Txn->store_id = $data['store_id'];
-            $Txn->contact_notes = $data['contact_notes'];
-            $Txn->terms_and_conditions = $data['terms_and_conditions'];
-            $Txn->status = $data['status'];
+            $Txn->delete();
 
-            $Txn->save();
-
-            $data['id'] = $Txn->id;
-
-            //print_r($data['items']); exit;
-
-            //Save the items >> $data['items']
-            ExpenseItemService::store($data);
-
-            //Save the ledgers >> $data['ledgers']; and update the balances
-            ExpenseLedgersService::store($data);
-
-            //check status and update financial account and contact balances accordingly
-            ExpenseApprovalService::run($data);
+            $txnStore = self::store($requestInstance);
 
             DB::connection('tenant')->commit();
 
-            return $Txn;
+            return $txnStore;
 
         }
         catch (\Throwable $e)
@@ -333,18 +303,13 @@ class ExpenseService
             return false;
         }
 
-        $data = $Txn->toArray();
-
         //start database transaction
         DB::connection('tenant')->beginTransaction();
 
         try
         {
-            ExpenseApprovalService::run($data);
-
-            //update the status of the txn
-            $Txn->status = 'Approved';
-            $Txn->save();
+            $Txn->status = 'approved';
+            ExpenseApprovalService::run($Txn);
 
             DB::connection('tenant')->commit();
 
@@ -357,14 +322,14 @@ class ExpenseService
             //print_r($e); exit;
             if (App::environment('local'))
             {
-                self::$errors[] = 'DB Error: Failed to approve transaction.';
+                self::$errors[] = 'DB Error: Failed to approve expense.';
                 self::$errors[] = 'File: ' . $e->getFile();
                 self::$errors[] = 'Line: ' . $e->getLine();
                 self::$errors[] = 'Message: ' . $e->getMessage();
             }
             else
             {
-                self::$errors[] = 'Fatal Internal Error: Failed to approve transaction. Please contact Admin';
+                self::$errors[] = 'Fatal Internal Error: Failed to approve expense.';
             }
 
             return false;

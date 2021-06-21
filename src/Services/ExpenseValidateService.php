@@ -20,7 +20,8 @@ class ExpenseValidateService
 
         //validate the data
         $customMessages = [
-            'debit_financial_account_code.required' => "The deposit to field is required.",
+            'debit_financial_account_code.required' => "The expense accout field is required.",
+            'credit_financial_account_code.required' => "The credit accout field is required.",
             'items.*.taxes.*.code.required' => "Tax code is required.",
             'items.*.taxes.*.total.required' => "Tax total is required.",
             //'items.*.taxes.*.exclusive.required' => "Tax exclusive amount is required.",
@@ -32,8 +33,6 @@ class ExpenseValidateService
             'payment_mode' => 'required',
             'debit_financial_account_code' => 'required',
             'base_currency' => 'required',
-            'due_date' => 'date|nullable',
-            'salesperson_contact_id' => 'numeric|nullable',
             'contact_notes' => 'string|nullable',
 
             'items' => 'required|array',
@@ -75,8 +74,8 @@ class ExpenseValidateService
         $data['document_name'] = $settings->document_name;
         $data['number'] = $requestInstance->input('number');
         $data['date'] = $requestInstance->input('date');
-        $data['debit_financial_account_code'] = $settings->financial_account_to_debit->code;
-        $data['credit_financial_account_code'] = $settings->financial_account_to_credit->code;
+        $data['debit_financial_account_code'] = $requestInstance->input('debit_financial_account_code'); //$settings->financial_account_to_debit->code
+        $data['credit_financial_account_code'] = $requestInstance->input('credit_financial_account_code'); //$settings->financial_account_to_credit->code
         $data['contact_id'] = $requestInstance->contact_id;
         $data['contact_name'] = $contact->name;
         $data['contact_address'] = trim($contact->shipping_address_street1 . ' ' . $contact->shipping_address_street2);

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 use Rutatiina\Expense\Models\Expense;
+use Rutatiina\Expense\Models\ExpenseSetting;
 use Rutatiina\Expense\Services\ExpenseService;
 use Rutatiina\FinancialAccounting\Traits\FinancialAccountingTrait;
 use Rutatiina\Contact\Traits\ContactTrait;
@@ -68,6 +69,8 @@ class ExpenseController extends Controller
             return view('l-limitless-bs4.layout_2-ltr-default.appVue');
         }
 
+        $settings = ExpenseSetting::has('financial_account_to_debit')->with(['financial_account_to_debit'])->firstOrFail();
+
         $tenant = Auth::user()->tenant;
 
         $txnAttributes = (new Expense())->rgGetAttributes();
@@ -80,6 +83,8 @@ class ExpenseController extends Controller
         $txnAttributes['base_currency'] = $tenant->base_currency;
         $txnAttributes['quote_currency'] = $tenant->base_currency;
         $txnAttributes['taxes'] = json_decode('{}');
+        $txnAttributes['payment_mode'] = optional($settings)->payment_mode_default;
+        $txnAttributes['credit_financial_account_code'] = optional($settings)->financial_account_to_credit->code;
         $txnAttributes['contact_notes'] = null;
         $txnAttributes['terms_and_conditions'] = null;
         $txnAttributes['items'] = [
