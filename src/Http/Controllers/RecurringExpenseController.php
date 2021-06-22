@@ -2,8 +2,8 @@
 
 namespace Rutatiina\Expense\Http\Controllers;
 
+use Rutatiina\Expense\Models\RecurringExpenseSetting;
 use Rutatiina\Expense\Services\RecurringExpenseService;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -63,6 +63,8 @@ class RecurringExpenseController extends Controller
             return view('l-limitless-bs4.layout_2-ltr-default.appVue');
         }
 
+        $settings = RecurringExpenseSetting::has('financial_account_to_debit')->with(['financial_account_to_debit'])->firstOrFail();
+
         $tenant = Auth::user()->tenant;
 
         $txnAttributes = (new RecurringExpense())->rgGetAttributes();
@@ -73,6 +75,8 @@ class RecurringExpenseController extends Controller
         $txnAttributes['base_currency'] = $tenant->base_currency;
         $txnAttributes['quote_currency'] = $tenant->base_currency;
         $txnAttributes['taxes'] = json_decode('{}');
+        $txnAttributes['payment_mode'] = optional($settings)->payment_mode_default;
+        $txnAttributes['credit_financial_account_code'] = optional($settings)->financial_account_to_credit->code;
         $txnAttributes['contact_notes'] = null;
         $txnAttributes['terms_and_conditions'] = null;
         $txnAttributes['items'] = [[
@@ -114,7 +118,7 @@ class RecurringExpenseController extends Controller
             'status' => true,
             'messages' => ['Recurring Expense saved'],
             'number' => 0,
-            'callback' => URL::route('recurring-expenses.show', [$storeService->id], false)
+            'callback' => route('recurring-expenses.show', [$storeService->id], false)
         ];
 
     }
@@ -173,7 +177,7 @@ class RecurringExpenseController extends Controller
         return [
             'status' => true,
             'messages' => ['Recurring Expense updated'],
-            'callback' => route('recurring-expenses.show', $request->id)
+            'callback' => route('recurring-expenses.show', $request->id, false)
         ];
     }
 
@@ -186,7 +190,7 @@ class RecurringExpenseController extends Controller
             return [
                 'status' => true,
                 'messages' => ['Recurring expense deleted'],
-                'callback' => URL::route('recurring-expenses.index', [], false)
+                'callback' => route('recurring-expenses.index', [], false)
             ];
         }
         else
@@ -200,7 +204,7 @@ class RecurringExpenseController extends Controller
 
     #-----------------------------------------------------------------------------------
 
-    public function approve($id)
+    public function activate($id)
     {
         $approve = RecurringExpenseService::activate($id);
 

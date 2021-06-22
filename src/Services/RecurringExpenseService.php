@@ -23,7 +23,7 @@ class RecurringExpenseService
         $taxes = Tax::all()->keyBy('code');
 
         $txn = RecurringExpense::findOrFail($id);
-        $txn->load('contact', 'properties', 'items.taxes');
+        $txn->load('contact', 'items.taxes');
         $txn->setAppends(['taxes', 'date_range', 'is_recurring']);
 
         $attributes = $txn->toArray();
@@ -60,8 +60,6 @@ class RecurringExpenseService
             $item['displayTotal'] = $item['amount']; #required
         };
 
-        $attributes['isRecurring'] = true;
-        $attributes['recurring'] = $attributes['properties'];
 
         return $attributes;
     }
