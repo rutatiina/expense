@@ -248,18 +248,17 @@ class ExpenseService
                 return false;
             }
 
-            //Delete affected relations
-            $Txn->ledgers()->delete();
-            $Txn->items()->delete();
-            $Txn->item_taxes()->delete();
-            $Txn->comments()->delete();
-
             //reverse the account balances
             AccountBalanceUpdateService::doubleEntry($Txn, true);
 
             //reverse the contact balances
             ContactBalanceUpdateService::doubleEntry($Txn, true);
 
+            //Delete affected relations
+            $Txn->ledgers()->delete();
+            $Txn->items()->delete();
+            $Txn->item_taxes()->delete();
+            $Txn->comments()->delete();
             $Txn->delete();
 
             DB::connection('tenant')->commit();
