@@ -119,6 +119,11 @@ class RecurringExpense extends Model
         return [$this->start_date, $this->end_date];
     }
 
+    public function tenant()
+    {
+        return $this->belongsTo('Rutatiina\Tenant\Models\Tenant', 'tenant_id');
+    }
+
     public function items()
     {
         return $this->hasMany('Rutatiina\Expense\Models\RecurringExpenseItem', 'recurring_expense_id')->orderBy('id', 'asc');

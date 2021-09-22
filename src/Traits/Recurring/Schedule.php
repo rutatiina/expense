@@ -3,10 +3,13 @@
 namespace Rutatiina\Expense\Traits\Recurring;
 
 use Illuminate\Support\Facades\Log;
-use Rutatiina\Expense\Models\ExpenseRecurringProperty;
+use Rutatiina\Expense\Models\RecurringExpenseProperty;
+use Rutatiina\FinancialAccounting\Traits\Schedule as FinancialAccountingScheduleTrait;
 
 trait Schedule
 {
+    use FinancialAccountingScheduleTrait;
+
     /**
      * Execute the console command.
      *
@@ -25,7 +28,7 @@ trait Schedule
 
         //the script to process recurring requests
 
-        $tasks = ExpenseRecurringProperty::withoutGlobalScopes()
+        $tasks = RecurringExpenseProperty::withoutGlobalScopes()
             ->where('status', 'active')
             ->get();
 
