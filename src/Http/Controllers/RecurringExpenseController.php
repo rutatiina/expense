@@ -32,7 +32,7 @@ class RecurringExpenseController extends Controller
         //load the vue version of the app
         if (!FacadesRequest::wantsJson())
         {
-            return view('l-limitless-bs4.layout_2-ltr-default.appVue');
+            return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
         $query = RecurringExpense::query();
@@ -60,7 +60,7 @@ class RecurringExpenseController extends Controller
         //load the vue version of the app
         if (!FacadesRequest::wantsJson())
         {
-            return view('l-limitless-bs4.layout_2-ltr-default.appVue');
+            return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
         $settings = RecurringExpenseSetting::has('financial_account_to_debit')->with(['financial_account_to_debit'])->firstOrFail();
@@ -128,7 +128,7 @@ class RecurringExpenseController extends Controller
         //load the vue version of the app
         if (!FacadesRequest::wantsJson())
         {
-            return view('l-limitless-bs4.layout_2-ltr-default.appVue');
+            return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
         $txn = RecurringExpense::findOrFail($id);
@@ -147,7 +147,7 @@ class RecurringExpenseController extends Controller
         //load the vue version of the app
         if (!FacadesRequest::wantsJson())
         {
-            return view('l-limitless-bs4.layout_2-ltr-default.appVue');
+            return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
         $txnAttributes = RecurringExpenseService::edit($id);
@@ -228,7 +228,7 @@ class RecurringExpenseController extends Controller
         //load the vue version of the app
         if (!FacadesRequest::wantsJson())
         {
-            return view('l-limitless-bs4.layout_2-ltr-default.appVue');
+            return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
         $txnAttributes = RecurringExpenseService::copy($id);

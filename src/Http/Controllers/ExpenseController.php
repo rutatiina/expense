@@ -39,7 +39,7 @@ class ExpenseController extends Controller
         //load the vue version of the app
         if (!FacadesRequest::wantsJson())
         {
-            return view('l-limitless-bs4.layout_2-ltr-default.appVue');
+            return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
         $query = Expense::query();
@@ -66,7 +66,7 @@ class ExpenseController extends Controller
         //load the vue version of the app
         if (!FacadesRequest::wantsJson())
         {
-            return view('l-limitless-bs4.layout_2-ltr-default.appVue');
+            return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
         $settings = ExpenseSetting::has('financial_account_to_debit')->with(['financial_account_to_debit'])->firstOrFail();
@@ -132,7 +132,7 @@ class ExpenseController extends Controller
         //load the vue version of the app
         if (!FacadesRequest::wantsJson())
         {
-            return view('l-limitless-bs4.layout_2-ltr-default.appVue');
+            return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
         $txn = Expense::findOrFail($id);
@@ -151,7 +151,7 @@ class ExpenseController extends Controller
         //load the vue version of the app
         if (!FacadesRequest::wantsJson())
         {
-            return view('l-limitless-bs4.layout_2-ltr-default.appVue');
+            return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
         $txnAttributes = ExpenseService::edit($id);
@@ -235,7 +235,7 @@ class ExpenseController extends Controller
         //load the vue version of the app
         if (!FacadesRequest::wantsJson())
         {
-            return view('l-limitless-bs4.layout_2-ltr-default.appVue');
+            return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
         $txnAttributes = ExpenseService::copy($id);
