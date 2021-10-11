@@ -3,6 +3,7 @@
 namespace Rutatiina\Expense\Traits\Recurring;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Rutatiina\Expense\Models\RecurringExpenseProperty;
 use Rutatiina\FinancialAccounting\Traits\Schedule as FinancialAccountingScheduleTrait;
 
@@ -21,6 +22,8 @@ trait Schedule
         //return true;
 
         config(['app.scheduled_process' => true]);
+
+        if (!Schema::hasTable((new RecurringExpenseProperty)->getTable())) return false;
 
         //$schedule->call(function () {
         //    Log::info('recurringInvoiceSchedule via trait has been called #updated');
