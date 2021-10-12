@@ -2,6 +2,7 @@
 
 namespace Rutatiina\Expense\Traits\Recurring;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Rutatiina\Expense\Models\RecurringExpenseProperty;
@@ -23,6 +24,7 @@ trait Schedule
 
         config(['app.scheduled_process' => true]);
 
+        if (!DB::connection('tenant')->getDatabaseName()) return false;
         if (!Schema::hasTable((new RecurringExpenseProperty)->getTable())) return false;
 
         //$schedule->call(function () {
