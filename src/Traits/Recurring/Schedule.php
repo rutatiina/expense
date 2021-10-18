@@ -34,6 +34,8 @@ trait Schedule
             return false;
         }
 
+        if (!Schema::hasTable((new RecurringExpenseProperty)->getTable())) return false;
+
         //$schedule->call(function () {
         //    Log::info('recurringInvoiceSchedule via trait has been called #updated');
         //})->everyMinute()->runInBackground();
