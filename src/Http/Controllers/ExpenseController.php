@@ -84,7 +84,8 @@ class ExpenseController extends Controller
         $txnAttributes['quote_currency'] = $tenant->base_currency;
         $txnAttributes['taxes'] = json_decode('{}');
         $txnAttributes['payment_mode'] = optional($settings)->payment_mode_default;
-        $txnAttributes['credit_financial_account_code'] = optional($settings)->financial_account_to_credit->code;
+        $txnAttributes['debit_financial_account_code'] = optional($settings)->debit_financial_account_code;
+        $txnAttributes['credit_financial_account_code'] = optional($settings)->credit_financial_account_code;
         $txnAttributes['contact_notes'] = null;
         $txnAttributes['terms_and_conditions'] = null;
         $txnAttributes['items'] = [
@@ -108,6 +109,8 @@ class ExpenseController extends Controller
 
     public function store(Request $request)
     {
+        return $request;
+
         $storeService = ExpenseService::store($request);
 
         if ($storeService == false)
