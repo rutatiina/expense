@@ -184,7 +184,7 @@ class ExpenseService
 
             if ($Txn->status == 'approved')
             {
-                self::$errors[] = 'Approved Transaction cannot be not be edited';
+                self::$errors[] = 'Approved expense cannot be not be edited';
                 return false;
             }
 
@@ -244,7 +244,7 @@ class ExpenseService
 
             if ($Txn->status == 'approved')
             {
-                self::$errors[] = 'Approved Transaction cannot be not be deleted';
+                self::$errors[] = 'Approved expenses(s) cannot be not be deleted';
                 return false;
             }
 
