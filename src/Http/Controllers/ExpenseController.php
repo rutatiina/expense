@@ -109,7 +109,7 @@ class ExpenseController extends Controller
 
     public function store(Request $request)
     {
-        return $request;
+        // return $request;
 
         $storeService = ExpenseService::store($request);
 

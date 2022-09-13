@@ -33,9 +33,9 @@ class CreateRgExpensesTable extends Migration
             $table->time('time');
             $table->unsignedBigInteger('debit_financial_account_code')->nullable();
             $table->unsignedBigInteger('credit_financial_account_code')->nullable();
-            $table->unsignedBigInteger('contact_id');
-            $table->string('contact_name', 50);
-            $table->string('contact_address', 50);
+            $table->unsignedBigInteger('contact_id')->nullable();
+            $table->string('contact_name', 50)->nullable();
+            $table->string('contact_address', 50)->nullable();
             $table->string('reference', 100)->nullable();
             $table->string('base_currency', 3);
             $table->string('quote_currency', 3);

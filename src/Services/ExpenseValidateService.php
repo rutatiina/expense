@@ -28,7 +28,7 @@ class ExpenseValidateService
         ];
 
         $rules = [
-            'contact_id' => 'required|numeric',
+            'contact_id' => 'nullable|numeric',
             'date' => 'required|date',
             'payment_mode' => 'required',
             'debit_financial_account_code' => 'required',
@@ -63,8 +63,7 @@ class ExpenseValidateService
         //Log::info($this->settings);
 
 
-        $contact = Contact::findOrFail($requestInstance->contact_id);
-
+        $contact = Contact::find($requestInstance->contact_id);
 
         $data['id'] = $requestInstance->input('id', null); //for updating the id will always be posted
         $data['user_id'] = $user->id;
@@ -77,12 +76,12 @@ class ExpenseValidateService
         $data['debit_financial_account_code'] = $requestInstance->input('debit_financial_account_code'); //$settings->financial_account_to_debit->code
         $data['credit_financial_account_code'] = $requestInstance->input('credit_financial_account_code'); //$settings->financial_account_to_credit->code
         $data['contact_id'] = $requestInstance->contact_id;
-        $data['contact_name'] = $contact->name;
-        $data['contact_address'] = trim($contact->shipping_address_street1 . ' ' . $contact->shipping_address_street2);
+        $data['contact_name'] = optional($contact)->name;
+        $data['contact_address'] = trim(optional($contact)->shipping_address_street1 . ' ' . optional($contact)->shipping_address_street2);
         $data['reference'] = $requestInstance->input('reference', null);
         $data['base_currency'] =  $requestInstance->input('base_currency');
         $data['quote_currency'] =  $requestInstance->input('quote_currency', $data['base_currency']);
-        $data['exchange_rate'] = $requestInstance->input('exchange_rate', 1);
+        $data['exchange_rate'] = $requestInstance->exchange_rate ?? 1;
         $data['branch_id'] = $requestInstance->input('branch_id', null);
         $data['store_id'] = $requestInstance->input('store_id', null);
         $data['terms_and_conditions'] = $requestInstance->input('terms_and_conditions', null);
