@@ -20,8 +20,8 @@ class ExpenseValidateService
 
         //validate the data
         $customMessages = [
-            'debit_financial_account_code.required' => "The expense accout field is required.",
-            'credit_financial_account_code.required' => "The credit accout field is required.",
+            'debit_financial_account_code.required' => "The expense account field is required.",
+            'credit_financial_account_code.required' => "The credit account field is required.",
             'items.*.taxes.*.code.required' => "Tax code is required.",
             'items.*.taxes.*.total.required' => "Tax total is required.",
             //'items.*.taxes.*.exclusive.required' => "Tax exclusive amount is required.",

@@ -20,9 +20,9 @@ class RecurringExpenseValidateService
 
         //validate the data
         $customMessages = [
-            'con_day_of_month.required_if' => "The day of month to recurr is required",
-            'con_month.required_if' => "The month to recurr is required",
-            'con_day_of_week.required_if' => "The day of week to recurr is required",
+            'con_day_of_month.required_if' => "The day of month to recur is required",
+            'con_month.required_if' => "The month to recur is required",
+            'con_day_of_week.required_if' => "The day of week to recur is required",
 
             'credit_financial_account_code' => "Tax account to credit is required",
             'items.*.debit_financial_account_code' => "Tax account to debit is required",
