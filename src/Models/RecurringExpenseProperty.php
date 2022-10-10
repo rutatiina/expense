@@ -2,13 +2,15 @@
 
 namespace Rutatiina\Expense\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Rutatiina\Tenant\Scopes\TenantIdScope;
 use Cron\CronExpression;
+use Illuminate\Database\Eloquent\Model;
+use Rutatiina\Tenant\Scopes\TenantIdScope;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RecurringExpenseProperty extends Model
 {
+    use SoftDeletes;
     use LogsActivity;
 
     protected static $logName = 'TxnRecurring';
