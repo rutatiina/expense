@@ -26,6 +26,10 @@ class Expense extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'canceled' => 'integer',
+    ];
+
     /**
      * The attributes that should be hidden for arrays.
      *
