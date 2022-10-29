@@ -99,6 +99,9 @@ class ExpenseController extends Controller
             ]
         ];
 
+        //the item template will result into the 'quantiy' parameter not to be there and thus the form will use amount field when calculating total
+        $txnAttributes['item_template'] = $txnAttributes['items'][0];
+
         return [
             'pageTitle' => 'Record Expense', #required
             'pageAction' => 'Record', #required
