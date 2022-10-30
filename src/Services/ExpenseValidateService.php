@@ -114,6 +114,9 @@ class ExpenseValidateService
                 $itemTaxableAmount  -= $itemTax['inclusive']; //calculate the item taxable amount more by removing the inclusive amount
             }
 
+            //use item selling_financial_account_code if available and default if not
+            $financialAccountToDebit = $item['debit_financial_account_code'] ?? $requestInstance->input('debit_financial_account_code');
+
             $data['items'][] = [
                 'tenant_id' => $data['tenant_id'],
                 'created_by' => $data['created_by'],
@@ -123,19 +126,32 @@ class ExpenseValidateService
                 'taxable_amount' => $itemTaxableAmount,
                 'taxes' => $itemTaxes,
             ];
+
+            $data['items'][] = [
+                'tenant_id' => $data['tenant_id'],
+                'created_by' => $data['created_by'],
+                'contact_id' => $item['contact_id'],
+                'item_id' => $item['item_id'],
+                'debit_financial_account_code' => $financialAccountToDebit,
+                'name' => $item['name'],
+                'description' => $item['description'],
+                'taxable_amount' => $itemTaxableAmount,
+                'amount' => $item['amount'],
+                'taxes' => $itemTaxes,
+            ];
+
+            //DR ledger
+            $data['ledgers'][$financialAccountToDebit]['financial_account_code'] = $financialAccountToDebit;
+            $data['ledgers'][$financialAccountToDebit]['effect'] = 'debit';
+            $data['ledgers'][$financialAccountToDebit]['total'] = @$data['ledgers'][$financialAccountToDebit]['amount'] + $itemTaxableAmount;
+            $data['ledgers'][$financialAccountToDebit]['contact_id'] = $data['contact_id'];
         }
+
+        //items that have to be added to the inventory
+        $data['inventory_items'] = ExpenseService::inventoryItems($data);
 
         $data['taxable_amount'] = $taxableAmount;
         $data['total'] = $txnTotal;
-
-
-        //DR ledger
-        $data['ledgers'][] = [
-            'financial_account_code' => $data['debit_financial_account_code'],
-            'effect' => 'debit',
-            'total' => $data['total'],
-            'contact_id' => $data['contact_id']
-        ];
 
         //CR ledger
         $data['ledgers'][] = [

@@ -2,16 +2,18 @@
 
 namespace Rutatiina\Expense\Services;
 
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
+use Rutatiina\Tax\Models\Tax;
+use Rutatiina\Item\Models\Item;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Rutatiina\Expense\Models\Expense;
 use Rutatiina\Expense\Models\ExpenseLedger;
+use Rutatiina\Expense\Models\ExpenseSetting;
+use Rutatiina\FinancialAccounting\Models\Account;
 use Rutatiina\FinancialAccounting\Services\AccountBalanceUpdateService;
 use Rutatiina\FinancialAccounting\Services\ContactBalanceUpdateService;
-use Rutatiina\Expense\Models\ExpenseSetting;
-use Rutatiina\Tax\Models\Tax;
 
 class ExpenseService
 {
@@ -331,6 +333,33 @@ class ExpenseService
 
             return false;
         }
+    }
+    
+    public static function inventoryItems($txnArrayOrModel)
+    {
+        $inventoryItems = [];
+
+        // print_r($txnArrayOrModel); exit;
+
+        foreach ($txnArrayOrModel['items'] as $key => $item)
+        {
+            if (!Item::find($item['item_id'])) continue; //skip the item if the item_id is not found
+
+            $_item_ = (is_array($item)) ? $item : $item->toArray();
+            //inventory Items
+            $financialAccountToDebitModel = Account::findCode($item['debit_financial_account_code']);
+            // print_r($financialAccountToDebitModel); exit;
+            if ($financialAccountToDebitModel->type == 'asset' && $financialAccountToDebitModel->sub_type == 'inventory')
+            {
+                $_item_['financial_account_code'] = $_item_['debit_financial_account_code'];
+                $_item_['batch'] = '';
+                $_item_['units'] = $_item_['quantity'];
+
+                $inventoryItems[] = $_item_;
+            }
+        }
+        
+        return $inventoryItems;
     }
 
 }
