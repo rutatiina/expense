@@ -101,7 +101,7 @@ class ExpenseService
             $Txn->document_name = $data['document_name'];
             $Txn->number = $data['number'];
             $Txn->date = $data['date'];
-            $Txn->debit_financial_account_code = $data['debit_financial_account_code'];
+            // $Txn->debit_financial_account_code = $data['debit_financial_account_code']; //this is being deprecated on 1st Nov 20222 and move to the items table
             $Txn->credit_financial_account_code = $data['credit_financial_account_code'];
             $Txn->contact_id = $data['contact_id'];
             $Txn->contact_name = $data['contact_name'];
@@ -134,6 +134,7 @@ class ExpenseService
             //$Txn->refresh(); //make the ledgers relationship infor available
 
             //update financial account and contact balances accordingly
+            $Txn = $Txn->fresh(['items', 'ledgers']);
             ExpenseApprovalService::run($Txn);
 
             DB::connection('tenant')->commit();
@@ -145,20 +146,20 @@ class ExpenseService
         {
             DB::connection('tenant')->rollBack();
 
-            Log::critical('Fatal Internal Error: Failed to save estimate to database');
+            Log::critical('Fatal Internal Error: Failed to save expense to database');
             Log::critical($e);
 
             //print_r($e); exit;
             if (App::environment('local'))
             {
-                self::$errors[] = 'Error: Failed to save estimate to database.';
+                self::$errors[] = 'Error: Failed to save expense to database.';
                 self::$errors[] = 'File: ' . $e->getFile();
                 self::$errors[] = 'Line: ' . $e->getLine();
                 self::$errors[] = 'Message: ' . $e->getMessage();
             }
             else
             {
-                self::$errors[] = 'Fatal Internal Error: Failed to save estimate to database. Please contact Admin';
+                self::$errors[] = 'Fatal Internal Error: Failed to save expense to database. Please contact Admin';
             }
 
             return false;
@@ -294,7 +295,7 @@ class ExpenseService
 
     public static function approve($id)
     {
-        $Txn = Expense::with(['ledgers'])->findOrFail($id);
+        $Txn = Expense::with(['items', 'ledgers'])->findOrFail($id);
 
         if (strtolower($Txn->status) != 'draft')
         {

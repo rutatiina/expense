@@ -94,6 +94,7 @@ class ExpenseController extends Controller
                 'selectedItem' => json_decode('{}'), #required
                 'displayTotal' => 0,
                 'description' => '',
+                'quantity' => 1,
                 'amount' => 0,
                 'contact_id' => '',
             ]

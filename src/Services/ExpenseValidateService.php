@@ -36,7 +36,7 @@ class ExpenseValidateService
             'contact_notes' => 'string|nullable',
 
             'items' => 'required|array',
-            'items.*.description' => 'required',
+            'items.*.description' => 'required_without:items.*.item_id',
             'items.*.amount' => 'required|numeric',
             'items.*.taxable_amount' => 'numeric',
 
@@ -73,7 +73,7 @@ class ExpenseValidateService
         $data['document_name'] = $settings->document_name;
         $data['number'] = $requestInstance->input('number');
         $data['date'] = $requestInstance->input('date');
-        $data['debit_financial_account_code'] = $requestInstance->input('debit_financial_account_code'); //$settings->financial_account_to_debit->code
+        // $data['debit_financial_account_code'] = $requestInstance->input('debit_financial_account_code'); //$settings->financial_account_to_debit->code //this is being deprecated on 1st Nov 20222 and move to the items table
         $data['credit_financial_account_code'] = $requestInstance->input('credit_financial_account_code'); //$settings->financial_account_to_credit->code
         $data['contact_id'] = $requestInstance->contact_id;
         $data['contact_name'] = optional($contact)->name;
@@ -121,20 +121,10 @@ class ExpenseValidateService
                 'tenant_id' => $data['tenant_id'],
                 'created_by' => $data['created_by'],
                 'contact_id' => $item['contact_id'],
-                'description' => $item['description'],
-                'amount' => $item['amount'],
-                'taxable_amount' => $itemTaxableAmount,
-                'taxes' => $itemTaxes,
-            ];
-
-            $data['items'][] = [
-                'tenant_id' => $data['tenant_id'],
-                'created_by' => $data['created_by'],
-                'contact_id' => $item['contact_id'],
                 'item_id' => $item['item_id'],
                 'debit_financial_account_code' => $financialAccountToDebit,
-                'name' => $item['name'],
-                'description' => $item['description'],
+                'description' => $item['name'].($item['description']? "\n".$item['description']:''),
+                'quantity' => $item['quantity'],
                 'taxable_amount' => $itemTaxableAmount,
                 'amount' => $item['amount'],
                 'taxes' => $itemTaxes,

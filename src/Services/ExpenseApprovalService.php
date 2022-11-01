@@ -34,6 +34,7 @@ trait ExpenseApprovalService
         //update inventory if an item in bill has cost account as inventory account
         //items that have to be added to the inventory
         $data = $txn->toArray(); //to prevent error in saving txn status
+        // print_r($data); exit;
         $data['inventory_items'] = ExpenseService::inventoryItems($data);
         // print_r($data['inventory_items']); exit;
 
