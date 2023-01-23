@@ -88,6 +88,7 @@ class ExpenseController extends Controller
         $txnAttributes['credit_financial_account_code'] = optional($settings)->credit_financial_account_code;
         $txnAttributes['contact_notes'] = null;
         $txnAttributes['terms_and_conditions'] = null;
+        $txnAttributes['costItemsBy'] = 'amount';
         $txnAttributes['items'] = [
             [
                 'selectedTaxes' => [], #required
