@@ -2,8 +2,9 @@
 
 namespace Rutatiina\Expense\Services;
 
-use Illuminate\Support\Facades\Validator;
+use Rutatiina\Item\Models\Item;
 use Rutatiina\Contact\Models\Contact;
+use Illuminate\Support\Facades\Validator;
 use Rutatiina\Expense\Models\ExpenseSetting;
 
 class ExpenseValidateService
@@ -114,6 +115,9 @@ class ExpenseValidateService
                 $itemTaxableAmount  -= $itemTax['inclusive']; //calculate the item taxable amount more by removing the inclusive amount
             }
 
+            //get the item
+            $itemModel = Item::find($item['item_id']);
+
             //use item selling_financial_account_code if available and default if not
             $financialAccountToDebit = $item['debit_financial_account_code'] ?? $requestInstance->input('debit_financial_account_code');
 
@@ -121,7 +125,7 @@ class ExpenseValidateService
                 'tenant_id' => $data['tenant_id'],
                 'created_by' => $data['created_by'],
                 'contact_id' => $item['contact_id'],
-                'item_id' => $item['item_id'],
+                'item_id' => optional($itemModel)->id, //$item['item_id'], use internal ID to verify data so that from here one the item_id value is LEGIT
                 'debit_financial_account_code' => $financialAccountToDebit,
                 'description' => $item['name'].($item['description']? "\n".$item['description']:''),
                 'quantity' => $item['quantity'],

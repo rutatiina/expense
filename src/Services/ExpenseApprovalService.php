@@ -3,6 +3,7 @@
 namespace Rutatiina\Expense\Services;
 
 use Rutatiina\GoodsReceived\Services\GoodsReceivedInventoryService;
+use Rutatiina\FinancialAccounting\Services\ItemBalanceUpdateService;
 use Rutatiina\FinancialAccounting\Services\AccountBalanceUpdateService;
 use Rutatiina\FinancialAccounting\Services\ContactBalanceUpdateService;
 
@@ -30,6 +31,9 @@ trait ExpenseApprovalService
 
         //Update the contact balances
         ContactBalanceUpdateService::doubleEntry($txn);
+
+        //Update the item balances
+        ItemBalanceUpdateService::entry($txn);
 
         //update inventory if an item in bill has cost account as inventory account
         //items that have to be added to the inventory

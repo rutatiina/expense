@@ -12,6 +12,7 @@ use Rutatiina\Expense\Models\Expense;
 use Rutatiina\Expense\Models\ExpenseLedger;
 use Rutatiina\Expense\Models\ExpenseSetting;
 use Rutatiina\FinancialAccounting\Models\Account;
+use Rutatiina\FinancialAccounting\Services\ItemBalanceUpdateService;
 use Rutatiina\FinancialAccounting\Services\AccountBalanceUpdateService;
 use Rutatiina\FinancialAccounting\Services\ContactBalanceUpdateService;
 
@@ -197,6 +198,9 @@ class ExpenseService
             //reverse the contact balances
             ContactBalanceUpdateService::doubleEntry($Txn->toArray(), true);
 
+            //Update the item balances
+            ItemBalanceUpdateService::entry($Txn->toArray(), true);
+
             //Delete affected relations
             $Txn->ledgers()->delete();
             $Txn->items()->delete();
@@ -256,6 +260,9 @@ class ExpenseService
 
             //reverse the contact balances
             ContactBalanceUpdateService::doubleEntry($Txn, true);
+
+            //Update the item balances
+            ItemBalanceUpdateService::entry($Txn, true);
 
             //Delete affected relations
             $Txn->ledgers()->delete();
