@@ -129,13 +129,8 @@ class ExpenseService
             //Save the items >> $data['items']
             ExpenseItemService::store($data);
 
-            //Save the ledgers >> $data['ledgers']; and update the balances
-            $Txn->ledgers()->createMany($data['ledgers']);
+            $Txn->refresh();
 
-            //$Txn->refresh(); //make the ledgers relationship infor available
-
-            //update financial account and contact balances accordingly
-            $Txn = $Txn->fresh(['items', 'ledgers']);
             ExpenseApprovalService::run($Txn);
 
             DB::connection('tenant')->commit();
@@ -184,7 +179,7 @@ class ExpenseService
 
         try
         {
-            $Txn = Expense::with('items', 'ledgers')->findOrFail($data['id']);
+            $Txn = Expense::with('items')->findOrFail($data['id']);
 
             if ($Txn->status == 'approved')
             {
@@ -202,7 +197,6 @@ class ExpenseService
             ItemBalanceUpdateService::entry($Txn->toArray(), true);
 
             //Delete affected relations
-            $Txn->ledgers()->delete();
             $Txn->items()->delete();
             $Txn->item_taxes()->delete();
             $Txn->comments()->delete();
@@ -247,7 +241,7 @@ class ExpenseService
 
         try
         {
-            $Txn = Expense::with('items', 'ledgers')->findOrFail($id);
+            $Txn = Expense::with('items')->findOrFail($id);
 
             if ($Txn->status == 'approved')
             {
@@ -264,11 +258,6 @@ class ExpenseService
             //Update the item balances
             ItemBalanceUpdateService::entry($Txn, true);
 
-            //Delete affected relations
-            $Txn->ledgers()->delete();
-            $Txn->items()->delete();
-            $Txn->item_taxes()->delete();
-            $Txn->comments()->delete();
             $Txn->delete();
 
             DB::connection('tenant')->commit();
@@ -302,7 +291,7 @@ class ExpenseService
 
     public static function approve($id)
     {
-        $Txn = Expense::with(['items', 'ledgers'])->findOrFail($id);
+        $Txn = Expense::with(['items'])->findOrFail($id);
 
         if (strtolower($Txn->status) != 'draft')
         {

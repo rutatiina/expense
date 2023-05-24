@@ -102,7 +102,7 @@ class ExpenseValidateService
         {
             $itemTaxes = $requestInstance->input('items.'.$key.'.taxes', []);
 
-            $item['taxable_amount'] = $item['amount']; //todo >> this is to be updated in future when taxes are propelly applied to receipts
+            $item['taxable_amount'] = $item['amount']; //todo >> this is to be updated in future when taxes are properly applied to receipts
 
             $txnTotal           += $item['amount'];
             $taxableAmount      += ($item['taxable_amount']);
@@ -116,7 +116,7 @@ class ExpenseValidateService
             }
 
             //get the item
-            $itemModel = Item::find($item['item_id']);
+            $itemModel = (isset($item['item_id'])) ? Item::find($item['item_id']) : null;
 
             //use item selling_financial_account_code if available and default if not
             $financialAccountToDebit = $item['debit_financial_account_code'] ?? $requestInstance->input('debit_financial_account_code');
@@ -127,18 +127,12 @@ class ExpenseValidateService
                 'contact_id' => $item['contact_id'],
                 'item_id' => optional($itemModel)->id, //$item['item_id'], use internal ID to verify data so that from here one the item_id value is LEGIT
                 'debit_financial_account_code' => $financialAccountToDebit,
-                'description' => $item['name'].($item['description']? "\n".$item['description']:''),
+                'description' => @$item['name'].(@$item['description']? "\n".@$item['description']:''),
                 'quantity' => $item['quantity'],
                 'taxable_amount' => $itemTaxableAmount,
                 'amount' => $item['amount'],
                 'taxes' => $itemTaxes,
             ];
-
-            //DR ledger
-            $data['ledgers'][$financialAccountToDebit]['financial_account_code'] = $financialAccountToDebit;
-            $data['ledgers'][$financialAccountToDebit]['effect'] = 'debit';
-            $data['ledgers'][$financialAccountToDebit]['total'] = @$data['ledgers'][$financialAccountToDebit]['amount'] + $itemTaxableAmount;
-            $data['ledgers'][$financialAccountToDebit]['contact_id'] = $data['contact_id'];
         }
 
         //items that have to be added to the inventory
@@ -146,28 +140,6 @@ class ExpenseValidateService
 
         $data['taxable_amount'] = $taxableAmount;
         $data['total'] = $txnTotal;
-
-        //CR ledger
-        $data['ledgers'][] = [
-            'financial_account_code' => $data['credit_financial_account_code'],
-            'effect' => 'credit',
-            'total' => $data['total'],
-            'contact_id' => $data['contact_id']
-        ];
-
-        //print_r($data); exit;
-
-        //Now add the default values to items and ledgers
-
-        foreach ($data['ledgers'] as &$ledger)
-        {
-            $ledger['tenant_id'] = $data['tenant_id'];
-            $ledger['date'] = date('Y-m-d', strtotime($data['date']));
-            $ledger['base_currency'] = $data['base_currency'];
-            $ledger['quote_currency'] = $data['quote_currency'];
-            $ledger['exchange_rate'] = $data['exchange_rate'];
-        }
-        unset($ledger);
 
         //Return the array of txns
         //print_r($data); exit;

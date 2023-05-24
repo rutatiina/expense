@@ -13,16 +13,12 @@ use Rutatiina\Expense\Services\ExpenseService;
 use Rutatiina\FinancialAccounting\Traits\FinancialAccountingTrait;
 use Rutatiina\Contact\Traits\ContactTrait;
 use Yajra\DataTables\Facades\DataTables;
-;
-use Rutatiina\Expense\Classes\Copy as TxnCopy;
-use Rutatiina\Expense\Classes\Number as TxnNumber;
-use Rutatiina\Expense\Traits\Item as TxnItem;
+
 
 class ExpenseController extends Controller
 {
     use FinancialAccountingTrait;
     use ContactTrait;
-    use TxnItem;
 
     // >> get the item attributes template << !!important
 
